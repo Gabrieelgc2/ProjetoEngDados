@@ -5,6 +5,9 @@ class Load:
 
     def create_sqlite_table(self, contratacoes_list, db_name, table_name):
 
+        """
+        Método responsável por criar uma tabela no banco de dados SQLite e inserir os dados de contratações.
+        """
         con = sqlite3.connect(f"{db_name}.db")
         c = con.cursor()
 
