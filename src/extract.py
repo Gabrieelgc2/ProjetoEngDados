@@ -4,16 +4,28 @@ import requests
 class Extract:
     def __init__(self):
         pass
+        
+        self.url = "https://pncp.gov.br/api/consulta/v1/contratacoes/proposta"
 
-    def extract_country(self, country):
+    def extract_contratacoes(self, dataFinal, codigoModalidadeContratacao, uf, pagina, tamanhoPagina):
         """
-        Método responsável por acessar a url e transformar o json em uma lista de dicionários,
-        onde cada dicionário representa um país com suas respectivas universidades.
+        Método responsável por acessar a API do PNCP e retornar os dados de contratações.
         """
 
-        url = f"http://universities.hipolabs.com/search?country={country}"
-        response = requests.get(url)
+        params = {
+            "dataFinal": dataFinal,
+            "codigoModalidadeContratacao": codigoModalidadeContratacao,
+            "uf": uf,
+            "pagina": pagina,
+            "tamanhoPagina": tamanhoPagina
+        }
+
+        response = requests.get(self.url, params=params)
+
         response.raise_for_status()
-        universities = response.json()
 
-        return universities
+        dados = response.json()
+
+        print(dados)
+        
+        return dados

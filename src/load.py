@@ -1,46 +1,48 @@
 import sqlite3
-
-
 class Load:
     def __init__(self):
         pass
 
-    def create_sqlite_table(self, universities_list, db_name, table_name):
-        """
-        Método responsável por criar uma tabela SQLite e adicionar tabelas nele.
+    def create_sqlite_table(self, contratacoes_list, db_name, table_name):
 
-        Args:
-            universities_list: list[dict]
-            db_name: str
-            table_name: str
-        """
-
-        # Criar o banco e se conectar nele
         con = sqlite3.connect(f"{db_name}.db")
         c = con.cursor()
 
         c.execute(f"""
-CREATE TABLE IF NOT EXISTS {table_name}
-(
-id INTEGER PRIMARY KEY,
-name TEXT,
-country TEXT,
-state_province TEXT,
-web_pages TEXT,
-domains TEXT
-);
-""")
+        CREATE TABLE IF NOT EXISTS {table_name} (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            numero_controle TEXT UNIQUE,
+            objeto TEXT,
+            orgao TEXT,
+            cnpj TEXT,
+            valor REAL,
+            uf TEXT,
+            municipio TEXT,
+            modalidade TEXT,
+            data_abertura TEXT,
+            data_encerramento TEXT
+        );
+        """)
 
-        for university in universities_list:
+        for ctt in contratacoes_list:
+
             c.execute(
-                f"""INSERT INTO {table_name} (name, country, state_province,
-web_pages, domains) VALUES (?,?,?,?,?);""",
+                f"""
+                INSERT OR IGNORE INTO {table_name}
+                (numero_controle, objeto, orgao, cnpj, valor, uf, municipio, modalidade, data_abertura, data_encerramento)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+                """,
                 (
-                    university.get("name"),
-                    university.get("country"),
-                    university.get("state-province"),
-                    ", ".join(university.get("web_pages", [])),
-                    ", ".join(university.get("domains", [])),
+                    ctt.get("numeroControlePNCP"),
+                    ctt.get("objetoCompra"),
+                    (ctt.get("orgaoEntidade") or {}).get("razaoSocial"),
+                    (ctt.get("orgaoEntidade") or {}).get("cnpj"),
+                    ctt.get("valorTotalEstimado"),
+                    (ctt.get("unidadeOrgao") or {}).get("ufSigla"),
+                    (ctt.get("unidadeOrgao") or {}).get("municipioNome"),
+                    ctt.get("modalidadeNome"),
+                    ctt.get("dataAberturaProposta"),
+                    ctt.get("dataEncerramentoProposta"),
                 ),
             )
 
